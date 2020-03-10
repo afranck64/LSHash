@@ -54,6 +54,7 @@ Main Interface
 .. code-block:: python
 
     LSHash(hash_size, input_dim, num_of_hashtables=1, storage=None, matrices_filename=None, overwrite=False)
+    MultilevelLSHash(hash_size, input_dim, num_of_hashtables=1, storage=None, matrices_filename=None, overwrite=False)
 
 parameters:
 
@@ -65,7 +66,7 @@ parameters:
     (optional) The number of hash tables used for multiple lookups.
 ``storage = None``:
     (optional) Specify the name of the storage to be used for the index
-    storage. Options include "redis".
+    storage. Options include "redis" and "sqlite".
 ``matrices_filename = None``:
     (optional) Specify the path to the .npz file random matrices are stored
     or to be stored if the file does not exist yet
