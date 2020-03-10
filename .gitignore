@@ -10,3 +10,9 @@
 
 # PyCharm-Files
 /.idea
+
+# VScode files
+/.vscode
+
+# Python environment
+/env
