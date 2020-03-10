@@ -25,8 +25,8 @@ except ImportError:
 Levels = namedtuple("Levels", ["High", "Medium", "Low"])("high", "medium", "low")
 _LEVELS_KEY_COEFFICIENTS = {
     Levels.High: 1.0,
-    Levels.Medium: 0.66,
-    Levels.Low: 0.33
+    Levels.Medium: 0.75,
+    Levels.Low: 0.5
 }
 
 
@@ -196,7 +196,11 @@ class SQLiteStorage(BaseStorage):
     
     def _get_level_key_value(self, key, level):
         size = int(len(key) * _LEVELS_KEY_COEFFICIENTS[level])
-        return key[:size]
+        if level == Levels.High:
+            return key[:size]
+        else:
+            mixed_key = key[0::2] + key[1::2]
+            return mixed_key[:size]
     
     def keys(self, level=Levels.High):
         if level is None:
