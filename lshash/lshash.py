@@ -11,11 +11,12 @@ if sys.version_info[0] >= 3:
 else:
     range = xrange
 
+from copy import deepcopy
 import os
 import json
 import numpy as np
 
-from .storage import storage
+from .storage import storage, Levels
 
 try:
     from bitarray import bitarray
@@ -207,11 +208,37 @@ class LSHash(object):
         else:
             value = tuple(input_point)
 
+        index_keys = []
         for i, table in enumerate(self.hash_tables):
-            table.append_val(self._hash(self.uniform_planes[i], input_point),
-                             value)
+            k = self._hash(self.uniform_planes[i], input_point)
+            table.append_val(k, value)
+            index_keys.append(k)
+        return index_keys
+    
+    def hash(self, input_point):
+        """ Index a single input point by adding it to the selected storage.
 
-    def query(self, query_point, num_results=None, distance_func=None):
+        If `extra_data` is provided, it will become the value of the dictionary
+        {input_point: extra_data}, which in turn will become the value of the
+        hash table. `extra_data` needs to be JSON serializable if in-memory
+        dict is not used as storage.
+
+        :param input_point:
+            A list, or tuple, or numpy ndarray object that contains numbers
+            only. The dimension needs to be 1 * `input_dim`.
+            This object will be converted to Python tuple and stored in the
+            selected storage.
+        """
+
+        if isinstance(input_point, np.ndarray):
+            input_point = input_point.tolist()
+
+        index_key = []
+        for i, table in enumerate(self.hash_tables):
+            k = self._hash(self.uniform_planes[i], input_point)
+        return index_key
+
+    def query(self, query_point, num_results=None, distance_func=None, level=None):
         """ Takes `query_point` which is either a tuple or a list of numbers,
         returns `num_results` of results as a list of tuples that are ranked
         based on the supplied metric function `distance_func`.
@@ -229,6 +256,9 @@ class LSHash(object):
             be one of ("hamming", "euclidean", "true_euclidean",
             "centred_euclidean", "cosine", "l1norm"). By default "euclidean"
             will used.
+        :param level:
+            (optional) The level to use for multilevel storages. Should be a
+            field of `storage.Levels`
         """
 
         candidates = set()
@@ -244,7 +274,7 @@ class LSHash(object):
                 for key in table.keys():
                     distance = LSHash.hamming_dist(key, binary_hash)
                     if distance < 2:
-                        candidates.update(table.get_list(key))
+                        candidates.update(table.get_list(key, level))
 
             d_func = LSHash.euclidean_dist_square
 
@@ -265,7 +295,7 @@ class LSHash(object):
 
             for i, table in enumerate(self.hash_tables):
                 binary_hash = self._hash(self.uniform_planes[i], query_point)
-                candidates.update(table.get_list(binary_hash))
+                candidates.update(table.get_list(binary_hash, level))
 
         # rank candidates by distance function
         candidates = [(ix, d_func(query_point, self._as_np_array(ix)))
@@ -306,3 +336,13 @@ class LSHash(object):
     @staticmethod
     def cosine_dist(x, y):
         return 1 - np.dot(x, y) / ((np.dot(x, x) * np.dot(y, y)) ** 0.5)
+
+
+class MultiLevelLSHash(LSHash):
+    def __init__(self, hash_size, input_dim, num_hashtables=1,
+                storage_config=None, matrices_filename=None, overwrite=False, levels=None):
+        _storage_config = deepcopy(storage_config)
+        if "sqlite" in _storage_config:
+            _storage_config["sqlite"]["enabled_levels"] = True
+        super().__init__(hash_size=hash_size, input_dim=input_dim, num_hashtables=num_hashtables,
+                 storage_config=storage_config, matrices_filename=matrices_filename, overwrite=overwrite)
