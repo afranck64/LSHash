@@ -342,7 +342,11 @@ class MultiLevelLSHash(LSHash):
     def __init__(self, hash_size, input_dim, num_hashtables=1,
                 storage_config=None, matrices_filename=None, overwrite=False, levels=None):
         _storage_config = deepcopy(storage_config)
+        if _storage_config is None:
+            _storage_config = {'sqlite': {}}
+        elif 'sqlite' in _storage_config and _storage_config['sqlite'] is None:
+            _storage_config['sqlite'] = {}
         if "sqlite" in _storage_config:
             _storage_config["sqlite"]["enabled_levels"] = True
         super().__init__(hash_size=hash_size, input_dim=input_dim, num_hashtables=num_hashtables,
-                 storage_config=storage_config, matrices_filename=matrices_filename, overwrite=overwrite)
+                 storage_config=_storage_config, matrices_filename=matrices_filename, overwrite=overwrite)
