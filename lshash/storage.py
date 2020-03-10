@@ -155,9 +155,11 @@ class SQLiteStorage(BaseStorage):
             "serializer": None,
             "enabled_levels": None
         }
-        if config is not None:
+        if config is None:
+            self.config['serializer'] = serializer()
+        else:
             self.config.update(config)
-        self.config["serializer"] = serializer(config.get("serializer"))
+            self.config["serializer"] = serializer(config.get("serializer"))
         connection = sqlite3.connect(self.config["database"])
         self.config["connection"] = connection
         if h_index:
