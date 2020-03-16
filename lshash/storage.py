@@ -30,7 +30,7 @@ _LEVELS_KEY_COEFFICIENTS = {
 }
 
 
-__all__ = ['storage', 'serializer', 'BaseStorage', 'InMemoryStorage', 'RedisStorage', 'SqliteStorage']
+__all__ = ['storage', 'serializer', 'BaseStorage', 'InMemoryStorage', 'RedisStorage', 'SQLiteStorage']
 
 def storage(storage_config, index):
     """ Given the configuration for storage and the index, return the
