@@ -1,2 +1,3 @@
 numpy>=1.9.1
-redis==2.10.3
+redis==3.4.0
+fakeredis==1.1.1
