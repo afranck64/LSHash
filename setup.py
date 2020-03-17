@@ -30,7 +30,7 @@ setup(
     description='A fast Python implementation of locality sensitive hashing with persistance support.',
     long_description=readme + '\n\n' + changes,
     license=license,
-    requires=required,
+    install_requires=required,
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

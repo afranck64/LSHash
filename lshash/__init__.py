@@ -10,3 +10,6 @@ __license__ = 'MIT'
 __version__ = '0.0.4dev'
 
 from .lshash import LSHash, MultiLevelLSHash
+
+
+__all__ = ["LSHash", "MultiLevelLSHash"]

@@ -9,7 +9,18 @@ import sys
 from copy import deepcopy
 import os
 import json
-import numpy as np
+
+
+def _is_setup_mode():
+    return os.path.exists(os.path.join("..", os.path.split(__file__)[0], "setup.py"))
+
+if _is_setup_mode:
+    try:
+        import numpy as np
+    except ImportError as err:
+        pass
+else:
+    import numpy as np
 
 from .storage import storage, Levels
 
