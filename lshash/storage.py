@@ -12,6 +12,7 @@ import hashlib
 import pickle
 try:
     import joblib
+    import io
 except ImportError:
     joblib = None
 import sqlite3
@@ -45,6 +46,14 @@ def storage(storage_config, index):
     else:
         raise ValueError("Only in-memory dictionary and Redis are supported.")
 
+def _joblib_dumps(obj):
+    buf = io.BytesIO()
+    joblib.dump(obj, buf)
+    return buf.getvalue()
+
+def _joblib_loads(obj):
+    buf = io.BytesIO(obj)
+    return joblib.load(buf)
 
 def serializer(protocol=None):
     """ Given a protocole, return the corresponding serializer
@@ -56,6 +65,10 @@ def serializer(protocol=None):
         return json
     else:
         if joblib is not None:
+            if not hasattr(joblib, 'dumps'):
+                joblib.dumps = _joblib_dumps
+            if not hasattr(joblib, 'loads'):
+                joblib.loads = _joblib_loads
             return joblib
         else:
             return pickle
