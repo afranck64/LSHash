@@ -154,7 +154,7 @@ class LSHash(object):
                   `input_dim` when initializing this LSHash instance""", e)
             raise
         else:
-            return "".join(['1' if i > 0 else '0' for i in projections])
+            return "".join(['1' if i > 0 else '0' for i in projections.flat])
 
     def _as_np_array(self, json_or_tuple):
         """ Takes either a JSON-serialized data structure or a tuple that has
@@ -239,10 +239,11 @@ class LSHash(object):
         if isinstance(input_point, np.ndarray):
             input_point = input_point.tolist()
 
-        index_key = []
+        index_keys = []
         for i, table in enumerate(self.hash_tables):
             k = self._hash(self.uniform_planes[i], input_point)
-        return index_key
+            index_keys.append(k)
+        return index_keys
 
     def query(self, query_point, num_results=None, distance_func=None, level=None):
         """ Takes `query_point` which is either a tuple or a list of numbers,
